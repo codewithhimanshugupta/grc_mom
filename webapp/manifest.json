@@ -19,8 +19,8 @@
   "sap.ui": {
     "technology": "UI5",
     "icons": {
-      "icon": "",
-      "favIcon": "",
+      "icon": "path/to/icon.png",
+      "favIcon": "path/to/favicon.ico",
       "phone": "",
       "phone@2": "",
       "tablet": "",
@@ -79,9 +79,15 @@
       "routes": [
         {
           "name": "RouteView1",
-          "pattern": ":?query:",
+          "pattern": "",
           "target": [
             "TargetView1"
+          ]
+        },{
+          "name": "RouteView2",
+          "pattern": "view2",
+          "target": [
+            "TargetView2"
           ]
         }
       ],
@@ -92,6 +98,13 @@
           "clearControlAggregation": false,
           "viewId": "View1",
           "viewName": "View1"
+        },
+        "TargetView2": {
+          "viewType": "XML",
+          "transition": "slide",
+          "clearControlAggregation": false,
+          "viewId": "View2",
+          "viewName": "View2"
         }
       }
     },
