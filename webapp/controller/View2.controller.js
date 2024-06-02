@@ -12,7 +12,8 @@ sap.ui.define([
 
         _onObjectMatched: function (oEvent) {
             var oParameters = oEvent.getParameter("arguments"); // Retrieve all parameters
-            console.log(oParameters)
+            var text1s = sessionStorage.getItem("view1");
+                 console.log("Value received in View2:", text1s);
             var sValue = oParameters.value; // Retrieve the specific parameter value
             console.log(sValue)
             
