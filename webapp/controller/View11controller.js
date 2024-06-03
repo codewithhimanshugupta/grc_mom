@@ -92,11 +92,9 @@ const deploymentUrl= "https://api.ai.prod.eu-central-1.aws.ml.hana.ondemand.com/
 };
 
 // Example usage of main_func
-main_func("data").then((res) => {
+main_func("hello ").then((res) => {
     console.log(res);
 }).catch((error) => {
     console.error("Error:", error);
 });
-
-
 

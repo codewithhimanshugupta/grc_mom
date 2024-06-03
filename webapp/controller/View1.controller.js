@@ -1,33 +1,46 @@
 sap.ui.define([
     "sap/ui/core/mvc/Controller",
-    "sap/m/MessageToast",
-    
+    "sap/m/MessageToast"
 ], function (Controller, MessageToast) {
     "use strict";
 
     return Controller.extend("grcmom.controller.View1", {
+        transcriptKeywords: ["recording","afternoon","welcome","session","guidelines","proposing","coverage","processing","noted","Excel","visible"],
+        verifyTranscript: function (text) {
+            for (var i = 0; i < this.transcriptKeywords.length; i++) {
+                if (text.includes(this.transcriptKeywords[i])) {
+                    return true;
+                }
+            }
+            return false;
+        },
+
         onResetPress: function () {
             var oTextArea = this.byId("textarea");
             if (oTextArea) {
                 oTextArea.setValue("");
-            } else {
-                console.error("TextArea not found.");
+                oTextArea.setVisible(true);
             }
 
-            // Hide the paragraph
             var oParagraphText = this.byId("paragraphText");
             if (oParagraphText) {
                 oParagraphText.setVisible(false);
-            } else {
-                console.error("ParagraphText not found.");
             }
 
-            // Show the textarea
-            var oTextArea = this.byId("textarea");
-            if (oTextArea) {
-                oTextArea.setVisible(true);
-            } else {
-                console.error("TextArea not found.");
+            var oSubmitButton = this.byId("Submit");
+            if (oSubmitButton) {
+                oSubmitButton.setText("Generate MOM");
+                oSubmitButton.setEnabled(true);
+            }
+
+            var oLabel = this.byId("label1");
+            if (oLabel) {
+                oLabel.setText("Enter your transcript here.");
+            }
+
+            var oOpenMailButton = this.byId("openMailButton");
+            if (oOpenMailButton) {
+                oOpenMailButton.setVisible(false);
             }
         },
 
@@ -35,26 +48,56 @@ sap.ui.define([
             var oTextArea = this.byId("textarea");
             if (oTextArea) {
                 var textValue = oTextArea.getValue();
-                console.log("Text Value:", textValue);
 
-                // Set the text value in session storage
-                sessionStorage.setItem("text1", textValue);
-                // Log the value stored in session storage
-                console.log("Value stored in session storage:", sessionStorage.getItem("text1"));
+                if (textValue.trim() === "") {
+                    MessageToast.show("Please enter the transcript.");
+                    return;
+                }
 
-                // Hide the textarea
+                if (this.verifyTranscript(textValue)) {
+                    MessageToast.show("Transcript submitted successfully.");
+                } else {
+                    MessageToast.show("The entered text is not a transcript.");
+                    return;
+                }
+
+
                 oTextArea.setVisible(false);
 
-                // Show the paragraph
                 var oParagraphText = this.byId("paragraphText");
                 if (oParagraphText) {
                     oParagraphText.setText(textValue);
                     oParagraphText.setVisible(true);
-                } else {
-                    console.error("ParagraphText not found.");
                 }
-            } else {
-                console.error("TextArea not found.");
+
+                var oSubmitButton = this.byId("Submit");
+                if (oSubmitButton) {
+                    oSubmitButton.setText("Generate MOM");
+                    oSubmitButton.setEnabled(false);
+                }
+
+                var oLabel = this.byId("label1");
+                if (oLabel) {
+                    oLabel.setText("Transcript Result.");
+                }
+
+                var oOpenMailButton = this.byId("openMailButton");
+                if (oOpenMailButton) {
+                    oOpenMailButton.setVisible(true);
+                    var emailAddress = "Himanshu.gupta07@sap.com";
+                    var mailtoLink = "mailto:" + encodeURIComponent(emailAddress) + "?body=" + encodeURIComponent(textValue);
+                    oOpenMailButton.data("mailtoLink", mailtoLink);
+                }
+            }
+        },
+
+        onOpenMailPress: function () {
+            var oOpenMailButton = this.byId("openMailButton");
+            if (oOpenMailButton) {
+                var mailtoLink = oOpenMailButton.data("mailtoLink");
+                if (mailtoLink) {
+                    window.location.href = mailtoLink;
+                }
             }
         }
     });
