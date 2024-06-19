@@ -15,7 +15,7 @@
     "node-fetch": "^2.7.0"
   },
   "devDependencies": {
-    "@sap/ux-ui5-tooling": "1",
+    "@sap/ux-ui5-tooling": "^1.13.6",
     "@ui5/cli": "^3.0.0"
   },
   "scripts": {
