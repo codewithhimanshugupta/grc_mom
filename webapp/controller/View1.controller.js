@@ -134,7 +134,7 @@ sap.ui.define([
         },
 
         getFastApiResponce: async function (usertext) {
-            const Prm1 = "You are an AI expert in analysing conversations and extracting action items. Please review the text and identify any tasks, assignments, or actions that were agreed upon or mentioned as needing to be done. These could be tasks assigned to specific individuals, or general actions that the group has decided to take. Please list all the action items clearly and concisely. Also mention the names of the person whom any tasks are assigned and cover the important timelines of the tasks if mentioned in the text, please specify dates also if given. Also mention the brainstorming topic if any discussed in the text.";
+            const Prm1 = "You are an AI expert in analysing conversations and extracting action items. Please review the text and identify any tasks, assignments, or actions that were agreed upon or mentioned as needing to be done. These could be tasks assigned to specific individuals, or general actions that the group has decided to take. Please list all the action items clearly and concisely. Also mention the names of the person whom any tasks are assigned and cover the important timelines of the tasks if mentioned in the text, please specify dates also if given. Also mention the brainstorming topic if any discussed in the text.In the end write the summary of the text";
             const payload = JSON.stringify({ query: Prm1 + usertext });
 
             console.log("Test Payload:", payload);
