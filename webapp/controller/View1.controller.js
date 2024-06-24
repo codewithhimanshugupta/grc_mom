@@ -19,7 +19,7 @@ sap.ui.define([
 
             // Replace double newlines with a single newline
             transcript = transcript.replace(/\n\n/g, '\n');
-
+            console.log("In preprocess transcript :"+transcript);
             return transcript.trim();
         },
 
@@ -69,13 +69,13 @@ sap.ui.define([
                         .then(data => console.log(data))
                         .catch(error => console.error(error));
 
-                    console.log("On Answering Query", textValue);
+                    console.log("Text Value Ritika", textValue);
                     var ptran = this.preprocess_transcript(textValue);
-                    console.log(" preprocess trans data ", textValue);
+                    console.log(" preprocess trans data Ritika ", ptran);
 
                     var final_data = await this.getFastApiResponce(ptran);
 
-                    console.log("fast api data ", final_data);
+                    console.log("fast api data Ritika ", final_data);
 
                     MessageToast.show("Transcript submitted successfully.");
                 } else {
@@ -124,7 +124,8 @@ sap.ui.define([
         },
 
         getFastApiResponce: async function (usertext) {
-            const Prm1 = "You are an AI expert in analysing conversations and extracting action items. Please review the text and identify any tasks, assignments, or actions that were agreed upon or mentioned as needing to be done. These could be tasks assigned to specific individuals, or general actions that the group has decided to take. Please list all the action items clearly and concisely. Also mention the names of the person whom any tasks are assigned and cover the important timelines of the tasks if mentioned in the text, please specify dates also if given. Also mention the brainstorming topic if any discussed in the text.";
+            console.log("In fast api response Usertext: "+usertext);
+            const Prm1 = "You are an AI expert in analysing conversations and extracting action items. Please review the text and identify any tasks, assignments, or actions that were agreed upon or mentioned as needing to be done. These could be tasks assigned to specific individuals, or general actions that the group has decided to take. Please list all the action items clearly and concisely. Also mention the names of the person whom any tasks are assigned and cover the important timelines of the tasks if mentioned in the text, please specify dates also if given. Also mention the brainstorming topic if any discussed in the text.In the end write the summary of the text";
             const payload = JSON.stringify({ query: Prm1 + usertext });
 
             console.log("In Test Payload:", payload);
