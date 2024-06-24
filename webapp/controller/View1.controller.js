@@ -1,26 +1,48 @@
 sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/m/MessageToast",
-    "grcmom/controller/View11controller"
-], function (Controller, MessageToast, View11controller) {
+    "sap/ui/core/BusyIndicator"
+], function (Controller, MessageToast, BusyIndicator) {
     "use strict";
 
     return Controller.extend("grcmom.controller.View1", {
         transcriptKeywords: ["recording", "afternoon", "welcome", "session", "guidelines", "proposing", "coverage", "processing", "noted", "Excel", "visible"],
-        
-        preprocess_transcript: function(transcript) {
-            // Regex pattern to match timestamps
+
+        preprocessText: function (text) {
             var timestamp_pattern = /\d+:\d+:\d+\.\d+ --> \d+:\d+:\d+\.\d+\n/g;
-            transcript = transcript.replace(timestamp_pattern, '');
+            text = text.replace(timestamp_pattern, '');
 
-            // Regex pattern to match speaker names
             var speaker_pattern = /\n\.,? [A-Za-z]+\n/g;
-            transcript = transcript.replace(speaker_pattern, '\n');
+            text = text.replace(speaker_pattern, '\n');
 
-            // Replace double newlines with a single newline
-            transcript = transcript.replace(/\n\n/g, '\n');
-            console.log("In preprocess transcript :"+transcript);
-            return transcript.trim();
+            text = text.replace(/\n\n/g, '\n');
+
+            text = text.toLowerCase();
+            let tokens = text.split(/\s+/);
+            tokens = tokens.map(token => token.replace(/[^\w\s]/g, ''));
+            tokens = tokens.map(token => token.replace(/[^a-zA-Z]/g, ''));
+
+            const stopwords = ['i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', 'your', 'yours', 'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', 'her', 'hers', 'herself', 'it', 'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves', 'what', 'which', 'who', 'whom', 'this', 'that', 'these', 'those', 'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having', 'do', 'does', 'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if', 'or', 'because', 'as', 'until', 'while', 'of', 'at', 'by', 'for', 'with', 'about', 'against', 'between', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'to', 'from', 'up', 'down', 'in', 'out', 'on', 'off', 'over', 'under', 'again', 'further', 'then', 'once', 'here', 'there', 'when', 'where', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 's', 't', 'can', 'will', 'just', 'don', 'should', 'now'];
+            tokens = tokens.filter(token => !stopwords.includes(token));
+
+            tokens = tokens.map(token => {
+                if (token.endsWith('s')) {
+                    return token.slice(0, -1);
+                }
+                return token;
+            });
+
+            tokens = tokens.map(token => {
+                switch (token) {
+                    case "can't": return "cannot";
+                    case "won't": return "will not";
+                    default: return token;
+                }
+            });
+
+            text = tokens.join(' ');
+
+            return text;
         },
 
         verifyTranscript: function (text) {
@@ -65,70 +87,57 @@ sap.ui.define([
                 }
 
                 if (this.verifyTranscript(textValue)) {
-                    await getAPIToken()
-                        .then(data => console.log(data))
-                        .catch(error => console.error(error));
+                    BusyIndicator.show(0); // Show the BusyIndicator
+                    try {
+                        var ptran = this.preprocessText(textValue);
+                        var final_data = await this.getFastApiResponce(ptran);
+                        console.log("FastAPI data:", final_data);
 
-                    console.log("Text Value Ritika", textValue);
-                    var ptran = this.preprocess_transcript(textValue);
-                    console.log(" preprocess trans data Ritika ", ptran);
+                        oTextArea.setVisible(false);
 
-                    var final_data = await this.getFastApiResponce(ptran);
+                        const oParagraphText = this.byId("paragraphText");
+                        if (oParagraphText) {
+                            oParagraphText.setText(final_data);
+                            oParagraphText.setVisible(true);
+                        }
 
-                    console.log("fast api data Ritika ", final_data);
+                        const oSubmitButton = this.byId("Submit");
+                        if (oSubmitButton) {
+                            oSubmitButton.setText("Generate MOM");
+                            oSubmitButton.setEnabled(false);
+                        }
 
-                    MessageToast.show("Transcript submitted successfully.");
+                        const oLabel = this.byId("label1");
+                        if (oLabel) {
+                            oLabel.setText("Transcript Result.");
+                        }
+
+                        const oOpenMailButton = this.byId("openMailButton");
+                        if (oOpenMailButton) {
+                            oOpenMailButton.setVisible(true);
+                            const emailAddress = "Himanshu.gupta07@sap.com";
+                            const mailtoLink = `mailto:${encodeURIComponent(emailAddress)}?body=${encodeURIComponent(final_data)}`;
+                            oOpenMailButton.data("mailtoLink", mailtoLink);
+                        }
+
+                       
+                    } catch (error) {
+                        console.error("Error fetching FastAPI response:", error);
+                        MessageToast.show("Error submitting transcript. Please try again later.");
+                    } finally {
+                        BusyIndicator.hide(); // Hide the BusyIndicator
+                    }
                 } else {
                     MessageToast.show("The entered text is not a transcript.");
-                    return;
-                }
-
-                oTextArea.setVisible(false);
-
-                const oParagraphText = this.byId("paragraphText");
-                if (oParagraphText) {
-                    oParagraphText.setText(final_data);
-                    oParagraphText.setVisible(true);
-                }
-
-                const oSubmitButton = this.byId("Submit");
-                if (oSubmitButton) {
-                    oSubmitButton.setText("Generate MOM");
-                    oSubmitButton.setEnabled(false);
-                }
-
-                const oLabel = this.byId("label1");
-                if (oLabel) {
-                    oLabel.setText("Transcript Result.");
-                }
-
-                const oOpenMailButton = this.byId("openMailButton");
-                if (oOpenMailButton) {
-                    oOpenMailButton.setVisible(true);
-                    const emailAddress = "Himanshu.gupta07@sap.com";
-                    const mailtoLink = `mailto:${encodeURIComponent(emailAddress)}?body=${encodeURIComponent(final_data)}`;
-                    oOpenMailButton.data("mailtoLink", mailtoLink);
                 }
             }
         },
 
-        onAnsweringQuery: function (usertext) {
-            const resourceGroup = "e280c7a4-3339-4ac0-a5c2-4a575e88025a";
-            const deploymentUrl = "https://api.ai.prod.eu-central-1.aws.ml.hana.ondemand.com/v2/inference/deployments/d96914c7500a199f";
-            const modelName = "gpt-35-turbo";
-            const modelInputList = [{ role: "user", content: usertext }];
-
-            queryAnswering(deploymentUrl, resourceGroup, modelName, modelInputList)
-                .then(data => console.log(data))
-                .catch(error => console.error(error));
-        },
-
         getFastApiResponce: async function (usertext) {
-            console.log("In fast api response Usertext: "+usertext);
-            const Prm1 = "You are an AI expert in analysing conversations and extracting action items. Please review the text and identify any tasks, assignments, or actions that were agreed upon or mentioned as needing to be done. These could be tasks assigned to specific individuals, or general actions that the group has decided to take. Please list all the action items clearly and concisely. Also mention the names of the person whom any tasks are assigned and cover the important timelines of the tasks if mentioned in the text, please specify dates also if given. Also mention the brainstorming topic if any discussed in the text.In the end write the summary of the text";
+            const Prm1 = "You are an AI expert in analysing conversations and extracting action items. Please review the text and identify any tasks, assignments, or actions that were agreed upon or mentioned as needing to be done. These could be tasks assigned to specific individuals, or general actions that the group has decided to take. Please list all the action items clearly and concisely. Also mention the names of the person whom any tasks are assigned and cover the important timelines of the tasks if mentioned in the text, please specify dates also if given. Also mention the brainstorming topic if any discussed in the text.";
             const payload = JSON.stringify({ query: Prm1 + usertext });
 
-            console.log("In Test Payload:", payload);
+            console.log("Test Payload:", payload);
 
             try {
                 const response = await $.ajax({
@@ -140,11 +149,11 @@ sap.ui.define([
                     }
                 });
 
-                console.log("In Test Data:", response);
+                console.log("Test Data:", response);
                 return response;
             } catch (error) {
-                console.error(error);
-                return null;
+                console.error("Error in FastAPI request:", error);
+                throw error;
             }
         },
 
