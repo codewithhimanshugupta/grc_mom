@@ -1,12 +1,23 @@
 <mvc:View controllerName="grcmom.controller.View1"
     xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
     xmlns="sap.m"
+    xmlns:core="sap.ui.core"
     xmlns:l="sap.ui.layout"
     xmlns:form="sap.ui.layout.form">
     <Page id="page" title="{i18n>title}">
         <content>
             <l:VerticalLayout id="myVerticalLayout" class="sapUiContentPadding" width="100%">
-                <l:content>
+                    <l:content>
+                     <l:HorizontalLayout id="horizontal">
+                    <Label id="selectMeetingType" text="Select Meeting Type:" labelFor="input-b"
+			design="Bold" width="160px" vAlign="Bottom" />
+                    <ComboBox editable="true" required="true" id="meetingType" items="{/items}" selectionChange="onSelectionChange">
+                        <items>
+                            <core:Item id="selectedItem" key="{key}" text="{text}" />
+                        </items>
+                    </ComboBox>
+                     </l:HorizontalLayout>
+             
                     <Label id="label1" text="Enter your transcript here." />
                     <TextArea id="textarea" rows="15" placeholder="Enter Text........" growing="true" growingMaxLines="20" width="100%"/>
                      <Text id="paragraphText" visible="false" />

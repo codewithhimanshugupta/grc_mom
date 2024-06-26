@@ -1,12 +1,35 @@
 sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/m/MessageToast",
+    "sap/ui/model/json/JSONModel",
     "sap/ui/core/BusyIndicator"
-], function (Controller, MessageToast, BusyIndicator) {
+], function (Controller, MessageToast, JSONModel, BusyIndicator) {
     "use strict";
-
+    let selectedKey = "default";  
     return Controller.extend("grcmom.controller.View1", {
         transcriptKeywords: ["recording", "afternoon", "welcome", "session", "guidelines", "proposing", "coverage", "processing", "noted", "Excel", "visible"],
+        onInit: function() {
+            var oData = {
+              items: [
+                { key: "default", text: "Default" },
+                { key: "kickoff", text: "Kickoff/Coffee Corner Meeting" },
+                { key: "technical", text: "Technical Meeting" }
+              ]
+            };
+      
+            var oModel = new JSONModel(oData);
+            this.getView().setModel(oModel);
+          },
+
+          onSelectionChange: function(oEvent) {
+            var selectedItem = oEvent.getParameter("selectedItem");
+            selectedKey = selectedItem.getKey();
+            var selectedText = selectedItem.getText();
+      
+            // Handle selection change logic here
+            console.log("Selected Key:", selectedKey);
+            console.log("Selected Text:", selectedText);
+          },
 
         preprocessText: function (text) {
             var timestamp_pattern = /\d+:\d+:\d+\.\d+ --> \d+:\d+:\d+\.\d+\n/g;
@@ -134,10 +157,20 @@ sap.ui.define([
         },
 
         getFastApiResponce: async function (usertext) {
-            const Prm1 = "You are an AI expert in analysing conversations and extracting action items. Please review the text and identify any tasks, assignments, or actions that were agreed upon or mentioned as needing to be done. These could be tasks assigned to specific individuals, or general actions that the group has decided to take. Please list all the action items clearly and concisely. Also mention the names of the person whom any tasks are assigned and cover the important timelines of the tasks if mentioned in the text, please specify dates also if given. Also mention the brainstorming topic if any discussed in the text.In the end write the summary of the text";
-            const payload = JSON.stringify({ query: Prm1 + usertext });
+            const defaultPrompt = "You are an AI expert in analysing conversations and extracting action items.Write goals and objectives of the meeting.Please review the text and identify any tasks, assignments, or actions that were agreed upon or mentioned as needing to be done. These could be tasks assigned to specific individuals, or general actions that the group has decided to take. Please list all the action items clearly and concisely.Mention all important points.Also mention the names of the person whom any tasks are assigned and cover the important timelines of the tasks if mentioned in the text, please specify dates also if given. Also mention the brainstorming topic if any discussed in the text.In the end write the summary of the text with all important points";
+            const kickoffPrompt= "You are an AI expert in extracting information from kick-off meetings. Please tell me the goals and strategies of the current and next year, key discussions of the meeting, project scope and deliverables of the meeting, roles and responsibilities of team members, timelines and milestones of the tasks if discussed in the meeting, identify the resources necessary for project,action items and next steps which is discussed in the meeting and any other additional important information.Please mention the strategic topics clearly which are discussed in the meeting.In the end write the summary of the kick-off meeting with all important points";
+            
+            if(selectedKey =="kickoff")
+            {
+                prompt = kickoffPrompt;
+            }
+            else
+            {
+                prompt= defaultPrompt;
+            }
+            const payload = JSON.stringify({ query: prompt + usertext });
 
-            console.log("Test Payload:", payload);
+            console.log("Test Payload Ritika Test:", payload);
 
             try {
                 const response = await $.ajax({
