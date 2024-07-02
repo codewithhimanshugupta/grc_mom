@@ -99,7 +99,7 @@ sap.ui.define([
                 oComboBox.setVisible(true);
             }
             if (oMeetingType) {
-                oComboBox.setVisible(true);
+                oMeetingType.setVisible(true);
             }
         },
 
@@ -166,10 +166,14 @@ sap.ui.define([
         getFastApiResponce: async function (usertext) {
             const defaultPrompt = "You are an AI expert in analysing conversations and extracting action items , points discussed & summary.Please review the text and identify any tasks, assignments, or actions that were agreed upon or mentioned as needing to be done. These could be tasks assigned to specific individuals, or general actions that the group has decided to take. Please list all the action items clearly and concisely in the format 'action item - assigned to , by Due date'. Mention all important points. Then mention the 'points discussed' in form of bullet points. In the end write the summary of the meeting topic.";
             const kickoffPrompt="You are an AI expert in extracting information from kick-off meetings. Please give the goals and strategies of the current and next year. Please tell me the key discussions of the meeting, timelines and milestones of the tasks if discussed in the meeting, action items and next steps which is discussed in the meeting and any other additional important information. Please mention the strategic topics clearly which are discussed in the meeting with the name of the person who talked about it if applicable. In the end write the summary of the kick-off meeting with all important points";
-              
+            const technicalPrompt="Extract the purpose and objectives of the meeting, write all the technial information related to SAP systems,write name of business users, write name of sap user,login credentials, write testing  guidelines if mentioned in the text,write information related to test plans, test scope, write iscoper related information if given in the text, timelines of the test,write tasks and action items in the format 'action item'-'person responsible' mentioned in text,testing techniques if explained in the text, write guidelines for testing and test plans creation,write any new functionality of the application.In the end write the summary of the text with all important points discussed";
            if(selectedKey =="kickoff")
             {
                 prompt = kickoffPrompt;
+            }
+            else if(selectedKey =="technical")
+            {
+                prompt = technicalPrompt;
             }
             else
             {
