@@ -29,7 +29,7 @@
                 <ToolbarSpacer id="toolbarSpacer"/>
                 <Button id="Reset" text="Reset" press="onResetPress" />
                 <Button id="Submit" type="Emphasized" text="Generate MOM" press="onSubmitPress" />
-                <Button id="openMailButton" text="Open Mail" press=".onOpenMailPress" visible="false" />
+                <Button id="openMailButton" text="Open Mail" press="onOpenMailPress" visible="false" />
             </OverflowToolbar>
         </footer>
     </Page>
