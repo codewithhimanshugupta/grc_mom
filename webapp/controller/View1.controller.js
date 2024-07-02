@@ -8,6 +8,7 @@ sap.ui.define([
     let selectedKey = "default";  
     return Controller.extend("grcmom.controller.View1", {
         transcriptKeywords: ["recording", "afternoon", "welcome", "session", "guidelines", "proposing", "coverage", "processing", "noted", "Excel", "visible"],
+        
         onInit: function() {
             var oData = {
               items: [
@@ -19,9 +20,9 @@ sap.ui.define([
       
             var oModel = new JSONModel(oData);
             this.getView().setModel(oModel);
-          },
+        },
 
-          onSelectionChange: function(oEvent) {
+        onSelectionChange: function(oEvent) {
             var selectedItem = oEvent.getParameter("selectedItem");
             selectedKey = selectedItem.getKey();
             var selectedText = selectedItem.getText();
@@ -29,9 +30,9 @@ sap.ui.define([
             // Handle selection change logic here
             console.log("Selected Key:", selectedKey);
             console.log("Selected Text:", selectedText);
-          },
+        },
 
-          preprocessText: function (text) {
+        preprocessText: function (text) {
             // Remove timestamp patterns
             var timestampPattern = /\d+:\d+:\d+\.\d+ --> \d+:\d+:\d+\.\d+\n/g;
             text = text.replace(timestampPattern, '');
@@ -74,6 +75,8 @@ sap.ui.define([
             const oSubmitButton = this.byId("Submit");
             const oLabel = this.byId("label1");
             const oOpenMailButton = this.byId("openMailButton");
+            const oComboBox = this.byId("meetingType");
+            const oMeetingType = this.byId("selectMeetingType");
 
             if (oTextArea) {
                 oTextArea.setValue("");
@@ -92,10 +95,18 @@ sap.ui.define([
             if (oOpenMailButton) {
                 oOpenMailButton.setVisible(false);
             }
+            if (oComboBox) {
+                oComboBox.setVisible(true);
+            }
+            if (oMeetingType) {
+                oComboBox.setVisible(true);
+            }
         },
 
         onSubmitPress: async function () {
             const oTextArea = this.byId("textarea");
+            const oComboBox = this.byId("meetingType");
+            const oMeetingType = this.byId("selectMeetingType");
 
             if (oTextArea) {
                 const textValue = oTextArea.getValue().trim();
@@ -113,7 +124,8 @@ sap.ui.define([
                         console.log("FastAPI data:", final_data);
 
                         oTextArea.setVisible(false);
-
+                        oComboBox.setVisible(false);
+                        oMeetingType.setVisible(false);
                         const oParagraphText = this.byId("paragraphText");
                         if (oParagraphText) {
                             oParagraphText.setText(final_data);
@@ -139,7 +151,6 @@ sap.ui.define([
                             oOpenMailButton.data("mailtoLink", mailtoLink);
                         }
 
-                       
                     } catch (error) {
                         console.error("Error fetching FastAPI response:", error);
                         MessageToast.show("Error submitting transcript. Please try again later.");
